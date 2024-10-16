@@ -1,33 +1,40 @@
-import serial
+from serial import Serial
 import time
+import re
 
 
-def take(ser: serial.Serial, color: str, number: int) -> None:
-    msg = f"TAKE:{color}:{number}\n"
-    ser.write(msg.encode("utf-8"))
-    line = ser.readline().decode("utf-8").rstrip()
-    print(line)
-    # TODO Add handling for TAKE command
-    time.sleep(1)
+class SerialComs:
+    def __init__(self, port: str, baudrate: int, *args, **kwargs):
+        self.ser = Serial(port, baudrate, *args, **kwargs)
+        self.ser.reset_input_buffer()
 
+    def _buffer_com(self, msg: str) -> str:
+        self.ser.write(msg.encode("utf-8"))
+        time.sleep(1)
+        return self.ser.read(self.ser.in_waiting).decode("utf-8").strip()
 
-def send(ser: serial.Serial, color: str, number: int) -> None:
-    msg = f"SEND:{color}:{number}\n"
-    ser.write(msg.encode("utf-8"))
-    line = ser.readline().decode("utf-8").rstrip()
-    print(line)
-    # TODO Add handling for SEND command
-    time.sleep(1)
+    def take(self, color: str, number: int) -> None:
+        msg = f"TAKE:{color}:{number}\n"
+        # TODO Add handling for TAKE command
+        return self._buffer_com(msg)
 
+    def send(self, color: str, number: int) -> None:
+        msg = f"SEND:{color}:{number}\n"
+        # TODO Add handling for SEND command
+        return self._buffer_com(msg)
 
-def info(ser: serial.Serial, station: str) -> str:
-    msg = f"INFO:{station}\n"
-    ser.write(msg.encode("utf-8"))
-    msg = ser.readline().decode("utf-8").rstrip()
-    print(msg)
-    return msg
+    def info_station(self) -> str:
+        return self._buffer_com(f"INFO:S\n")
 
+    def info_bb(self) -> str:
+        return self._buffer_com(f"INFO:B\n")
 
-def secret(ser: serial.Serial, secret_msg: str) -> None:
-    # TODO find out what the msg is
-    pass
+    def info_color(self) -> str:
+        return self._buffer_com(f"INFO:C\n")
+
+    def secret(self, secret_msg: str) -> None:
+        # TODO find out what the msg is
+        pass
+
+    def close(self) -> None:
+        self.ser.close()
