@@ -9,16 +9,21 @@ class Bus:
 
     def infoStop(self):
         #We get the color of the current station with "INFO:C\n"
+        color = self.passengerObj.com.info_color()
         #It returns in "OK:Color\n" format.
-        #Make it return as an string directly, example : "RED"
-        pass
+        #We check what color it has, and return that color.
+        for i in self.passengerObj.COLORS:
+            if i in color:
+                return i
+                break
+        
 
     def connect(self):
-        #The function to connect the robot into the station
+        #TODO The function to connect the robot into the station
         pass
    
     def disconnect(self):
-        #The function to disconnec the robot from the station
+        #TODO The function to disconnect the robot from the station
         pass
 
     def runLoop(self):

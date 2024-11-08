@@ -1,17 +1,22 @@
 '''
 Class and methods to manage the passengers and store their information in an object
 '''
+from coms import SerialComs
+
 class Passengers:
     def __init__(self) -> None:
         #A list with the amount of passangers going to each destination, currently in the blackbox
         destinations = [0,0,0,0,0] #[Red, Green, Blue, Yellow, Purple]
         COLORS = ["RED", "GREEN", "BLUE", "YELLOW", "PURPLE"]
+        com = SerialComs("/dev/ttyUSB0", 115200, timeout=1)
 
     def infoPassengers(self) -> list:
         #send "INFO:S\n"
+        message = self.com.info_station()
         #returns "OK:#red:#green:#blue:#yellow:#purple\n"
         #Transform into an list, same format as destinations
-        pass
+        passengerList = [message[3:4], message[5:6], message[7:8], message[9:10], message[11:12]]
+        return passengerList
 
     def take(self):
         """
@@ -22,6 +27,7 @@ class Passengers:
         for i in destinationsCurrent:
             if i != 0:
                 #Send "TAKE:{self.COLORS[destinationCurrent.index(i)]}:{i}". Same indexes for color values and the corresponding passangers
+                self.com.take(self.COLORS[destinationsCurrent.index(i)], i)
                 self.destinations[destinationsCurrent.index(i)] += i
 
 
@@ -35,6 +41,7 @@ class Passengers:
         for i in self.COLORS:
             if currentStop == i:
                 #Send "SEND:{i}:{destiations[self.COLORS.index(i)]}\n". The index of current color is the same as the one for the destinations.
+                self.com.send(i, self.destinations[self.COLORS.index(i)])
                 self.destinations[i] = 0
 
         """     OLD CODE FOR EASE OF UNDERSTANDING
